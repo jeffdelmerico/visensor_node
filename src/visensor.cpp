@@ -40,8 +40,11 @@
 #define THRESHOLD_DATA_DELAY_WARNING 0.1 // in seconds
 
 namespace visensor {
-ViSensor::ViSensor(ros::NodeHandle& nh)
-    : nh_(nh) {
+ViSensor::ViSensor(const std::string& name, 
+                   const ros::NodeHandle& nh, 
+                   const ros::NodeHandle& nh_private)
+    : name_(name), nh_(nh), nh_private_(nh_private)
+{
   init();
 }
 
@@ -149,69 +152,69 @@ void ViSensor::imuCallback(boost::shared_ptr<ViImuMsg> imu_ptr, ViErrorCode erro
   ros::Time msg_time;
   msg_time.fromNSec(imu_ptr->timestamp);
 
-  sensor_msgs::Imu imu_msg;
+  sensor_msgs::ImuPtr imu_msg;
 
-  imu_msg.header.stamp = msg_time;
-  imu_msg.header.frame_id = ROS_IMU_FRAME_NAMES.at(static_cast<SensorId::SensorId>(imu_ptr->imu_id));
-  imu_msg.orientation.x = 0.0;
-  imu_msg.orientation.y = 0.0;
-  imu_msg.orientation.z = 0.0;
-  imu_msg.orientation.w = 1.0;
-  imu_msg.orientation_covariance[0] = 99999.9;
-  imu_msg.orientation_covariance[1] = 0.0;
-  imu_msg.orientation_covariance[2] = 0.0;
-  imu_msg.orientation_covariance[3] = 0.0;
-  imu_msg.orientation_covariance[4] = 99999.9;
-  imu_msg.orientation_covariance[5] = 0.0;
-  imu_msg.orientation_covariance[6] = 0.0;
-  imu_msg.orientation_covariance[7] = 0.0;
-  imu_msg.orientation_covariance[8] = 99999.9;
+  imu_msg->header.stamp = msg_time;
+  imu_msg->header.frame_id = ROS_IMU_FRAME_NAMES.at(static_cast<SensorId::SensorId>(imu_ptr->imu_id));
+  imu_msg->orientation.x = 0.0;
+  imu_msg->orientation.y = 0.0;
+  imu_msg->orientation.z = 0.0;
+  imu_msg->orientation.w = 1.0;
+  imu_msg->orientation_covariance[0] = 99999.9;
+  imu_msg->orientation_covariance[1] = 0.0;
+  imu_msg->orientation_covariance[2] = 0.0;
+  imu_msg->orientation_covariance[3] = 0.0;
+  imu_msg->orientation_covariance[4] = 99999.9;
+  imu_msg->orientation_covariance[5] = 0.0;
+  imu_msg->orientation_covariance[6] = 0.0;
+  imu_msg->orientation_covariance[7] = 0.0;
+  imu_msg->orientation_covariance[8] = 99999.9;
   // --- Angular Velocity.
-  imu_msg.angular_velocity.x = imu_ptr->gyro[0];
-  imu_msg.angular_velocity.y = imu_ptr->gyro[1];
-  imu_msg.angular_velocity.z = imu_ptr->gyro[2];
-  imu_msg.angular_velocity_covariance[0] = sigma2_gyr_adis16375_d;
-  imu_msg.angular_velocity_covariance[1] = 0.0;
-  imu_msg.angular_velocity_covariance[2] = 0.0;
-  imu_msg.angular_velocity_covariance[3] = 0.0;
-  imu_msg.angular_velocity_covariance[4] = sigma2_gyr_adis16375_d;
-  imu_msg.angular_velocity_covariance[5] = 0.0;
-  imu_msg.angular_velocity_covariance[6] = 0.0;
-  imu_msg.angular_velocity_covariance[7] = 0.0;
-  imu_msg.angular_velocity_covariance[8] = sigma2_gyr_adis16375_d;
+  imu_msg->angular_velocity.x = imu_ptr->gyro[0];
+  imu_msg->angular_velocity.y = imu_ptr->gyro[1];
+  imu_msg->angular_velocity.z = imu_ptr->gyro[2];
+  imu_msg->angular_velocity_covariance[0] = sigma2_gyr_adis16375_d;
+  imu_msg->angular_velocity_covariance[1] = 0.0;
+  imu_msg->angular_velocity_covariance[2] = 0.0;
+  imu_msg->angular_velocity_covariance[3] = 0.0;
+  imu_msg->angular_velocity_covariance[4] = sigma2_gyr_adis16375_d;
+  imu_msg->angular_velocity_covariance[5] = 0.0;
+  imu_msg->angular_velocity_covariance[6] = 0.0;
+  imu_msg->angular_velocity_covariance[7] = 0.0;
+  imu_msg->angular_velocity_covariance[8] = sigma2_gyr_adis16375_d;
   // --- Linear Acceleration.
-  imu_msg.linear_acceleration.x = imu_ptr->acc[0];
-  imu_msg.linear_acceleration.y = imu_ptr->acc[1];
-  imu_msg.linear_acceleration.z = imu_ptr->acc[2];
-  imu_msg.linear_acceleration_covariance[0] = sigma2_acc_adis16375_d;
-  imu_msg.linear_acceleration_covariance[1] = 0.0;
-  imu_msg.linear_acceleration_covariance[2] = 0.0;
-  imu_msg.linear_acceleration_covariance[3] = 0.0;
-  imu_msg.linear_acceleration_covariance[4] = sigma2_acc_adis16375_d;
-  imu_msg.linear_acceleration_covariance[5] = 0.0;
-  imu_msg.linear_acceleration_covariance[6] = 0.0;
-  imu_msg.linear_acceleration_covariance[7] = 0.0;
-  imu_msg.linear_acceleration_covariance[8] = sigma2_acc_adis16375_d;
+  imu_msg->linear_acceleration.x = imu_ptr->acc[0];
+  imu_msg->linear_acceleration.y = imu_ptr->acc[1];
+  imu_msg->linear_acceleration.z = imu_ptr->acc[2];
+  imu_msg->linear_acceleration_covariance[0] = sigma2_acc_adis16375_d;
+  imu_msg->linear_acceleration_covariance[1] = 0.0;
+  imu_msg->linear_acceleration_covariance[2] = 0.0;
+  imu_msg->linear_acceleration_covariance[3] = 0.0;
+  imu_msg->linear_acceleration_covariance[4] = sigma2_acc_adis16375_d;
+  imu_msg->linear_acceleration_covariance[5] = 0.0;
+  imu_msg->linear_acceleration_covariance[6] = 0.0;
+  imu_msg->linear_acceleration_covariance[7] = 0.0;
+  imu_msg->linear_acceleration_covariance[8] = sigma2_acc_adis16375_d;
 
-  visensor_node::visensor_imu imu2;
-  imu2.header.stamp = msg_time;
-  imu2.header.frame_id = ROS_IMU_FRAME_NAMES.at(static_cast<SensorId::SensorId>(imu_ptr->imu_id));
-  imu2.header.seq = 5;
+  visensor_node::visensor_imuPtr imu2;
+  imu2->header.stamp = msg_time;
+  imu2->header.frame_id = ROS_IMU_FRAME_NAMES.at(static_cast<SensorId::SensorId>(imu_ptr->imu_id));
+  imu2->header.seq = 5;
 
-  imu2.angular_velocity.x = imu_ptr->gyro[0];
-  imu2.angular_velocity.y = imu_ptr->gyro[1];
-  imu2.angular_velocity.z = imu_ptr->gyro[2];
+  imu2->angular_velocity.x = imu_ptr->gyro[0];
+  imu2->angular_velocity.y = imu_ptr->gyro[1];
+  imu2->angular_velocity.z = imu_ptr->gyro[2];
 
-  imu2.linear_acceleration.x = imu_ptr->acc[0];
-  imu2.linear_acceleration.y = imu_ptr->acc[1];
-  imu2.linear_acceleration.z = imu_ptr->acc[2];
+  imu2->linear_acceleration.x = imu_ptr->acc[0];
+  imu2->linear_acceleration.y = imu_ptr->acc[1];
+  imu2->linear_acceleration.z = imu_ptr->acc[2];
 
-  imu2.magnetometer.x = imu_ptr->mag[0];
-  imu2.magnetometer.y = imu_ptr->mag[1];
-  imu2.magnetometer.z = imu_ptr->mag[2];
+  imu2->magnetometer.x = imu_ptr->mag[0];
+  imu2->magnetometer.y = imu_ptr->mag[1];
+  imu2->magnetometer.z = imu_ptr->mag[2];
 
-  imu2.pressure = imu_ptr->baro;
-  imu2.temperature = imu_ptr->temperature;
+  imu2->pressure = imu_ptr->baro;
+  imu2->temperature = imu_ptr->temperature;
 
   // --- Publish IMU Message.
   imu_pub_.at(static_cast<SensorId::SensorId>(imu_ptr->imu_id)).publish(imu_msg);
@@ -243,18 +246,18 @@ void ViSensor::frameCallback(ViFrame::Ptr frame_ptr, ViErrorCode error) {
   msg_time_host.fromNSec(frame_ptr->timestamp_host);
 
   // create new time message
-  visensor_node::visensor_time_host time_msg;
-  time_msg.header.stamp = msg_time;
-  time_msg.timestamp_host = msg_time_host;
+  visensor_node::visensor_time_hostPtr time_msg;
+  time_msg->header.stamp = msg_time;
+  time_msg->timestamp_host = msg_time_host;
   pub_time_host_.publish(time_msg);
 
   // create new image message
-  sensor_msgs::Image msg;
-  msg.header.stamp = msg_time;
-  msg.header.frame_id = ROS_CAMERA_FRAME_NAMES.at(static_cast<SensorId::SensorId>(frame_ptr->camera_id));
+  sensor_msgs::ImagePtr msg;
+  msg->header.stamp = msg_time;
+  msg->header.frame_id = ROS_CAMERA_FRAME_NAMES.at(static_cast<SensorId::SensorId>(frame_ptr->camera_id));
 
   if (frame_ptr->image_type == MONO8)
-    sensor_msgs::fillImage(msg, sensor_msgs::image_encodings::MONO8, image_height, image_width, image_width,
+    sensor_msgs::fillImage(*msg, sensor_msgs::image_encodings::MONO8, image_height, image_width, image_width,
                            frame_ptr->getImageRawPtr());
   else if (frame_ptr->image_type == MONO16) {
     cv::Mat image;
@@ -265,20 +268,21 @@ void ViSensor::frameCallback(ViFrame::Ptr frame_ptr, ViErrorCode error) {
 
     memcpy(image.data, frame_ptr->getImageRawPtr(), (image_width) * image_height * 2);
 
-    sensor_msgs::fillImage(msg, sensor_msgs::image_encodings::MONO16, image_height, image_width, image_width * 2,
+    sensor_msgs::fillImage(*msg, sensor_msgs::image_encodings::MONO16, image_height, image_width, image_width * 2,
                            image.data);
   } else
     ROS_WARN("[VI_SENSOR] - unknown image type!");
 
   // get current CameraInfo data
-  sensor_msgs::CameraInfo ci = cinfo_[static_cast<SensorId::SensorId>(frame_ptr->camera_id)];
+  sensor_msgs::CameraInfoPtr ci = boost::make_shared<sensor_msgs::CameraInfo>
+                                  (cinfo_[static_cast<SensorId::SensorId>(frame_ptr->camera_id)]);
 
   // fill header
-  ci.header.frame_id = ROS_CAMERA_FRAME_NAMES.at(static_cast<SensorId::SensorId>(frame_ptr->camera_id));
-  ci.header.stamp = msg_time;
+  ci->header.frame_id = ROS_CAMERA_FRAME_NAMES.at(static_cast<SensorId::SensorId>(frame_ptr->camera_id));
+  ci->header.stamp = msg_time;
 
-  ci.height = image_height;
-  ci.width = image_width;
+  ci->height = image_height;
+  ci->width = image_width;
 
   // publish image
   image_pub_[static_cast<SensorId::SensorId>(frame_ptr->camera_id)].publish(msg, ci);

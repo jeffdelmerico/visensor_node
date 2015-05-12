@@ -91,7 +91,9 @@ static const std::map<SensorId::SensorId, std::string> ROS_IMU_FRAME_NAMES {
 
 class ViSensor {
  public:
-  ViSensor(ros::NodeHandle& nh);
+  ViSensor(const std::string& name,
+           const ros::NodeHandle& nh,
+           const ros::NodeHandle& nh_private);
   ~ViSensor();
 
   void startSensors(const unsigned int cam_rate, const unsigned int imu_rate);
@@ -113,7 +115,9 @@ class ViSensor {
   bool precacheViCalibration(const SensorId::SensorId& camera_id);
 
  private:
+  std::string name_;
   ros::NodeHandle nh_;
+  ros::NodeHandle nh_private_;
 
   std::map<SensorId::SensorId, ros::NodeHandle> nhc_;
   std::map<SensorId::SensorId, image_transport::ImageTransport> itc_;

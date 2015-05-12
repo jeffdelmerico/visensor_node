@@ -29,26 +29,32 @@
  *
  */
 #include "visensor.hpp"
+#include <nodelet/nodelet.h>
+#include <pluginlib/class_list_macros.h>
 
-int main(int argc, char** argv) {
+namespace visensor {
 
-  ros::init(argc, argv, "visensor_node");
-  std::string name = ros::this_node::getName();
+class ViSensorNodelet : public nodelet::Nodelet {
+  public:
+    virtual void onInit();
+  protected:
+    boost::shared_ptr<ViSensor> vi_sensor;
+};
+
+void ViSensorNodelet::onInit()
+{
+  vi_sensor = boost::make_shared<ViSensor>(getName(), getNodeHandle(), getPrivateNodeHandle());
+
+  //Initalize params from ROS or set to default value
+  // TODO: do this with private NodeHandle, but kept this for backwards compatibility
   ros::NodeHandle nh;
-  ros::NodeHandle nh_private("~");
-
-  //default sensor rates
   int cam_rate;
-  int imu_rate ;
-
-  //Read values from ROS or set to default value
+  int imu_rate;
   nh.param("imuRate", imu_rate, IMU_FREQUENCY);
   nh.param("camRate", cam_rate, CAMERA_FREQUENCY);
+  vi_sensor->startSensors(cam_rate, imu_rate);
+}
 
-  visensor::ViSensor vi_sensor(name,nh,nh_private);
-  vi_sensor.startSensors(cam_rate, imu_rate);
+PLUGINLIB_DECLARE_CLASS(visensor_node, ViSensorNodelet, visensor::ViSensorNodelet, nodelet::Nodelet);
 
-  ros::spin();
-
-  return 0;
 }

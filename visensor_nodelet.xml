@@ -1,0 +1,7 @@
+<library path="lib/libvisensor_nodelet">
+  <class name="visensor_node/ViSensorNodelet" type="visensor::ViSensorNodelet" base_class_type="nodelet::Nodelet">
+    <description>
+      A nodelet wrapper for the visensor ROS driver.
+    </description>
+  </class>
+</library>

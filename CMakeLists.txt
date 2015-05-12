@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   camera_info_manager 
   dynamic_reconfigure
   cmake_modules
+  nodelet
 )
 
 # check libvisensor version, flags not used later
@@ -56,6 +57,7 @@ catkin_package(
   std_msgs 
   image_transport 
   camera_info_manager 
+  nodelet
 )
 
 #build and add libvisensor system library dependency
@@ -63,3 +65,18 @@ add_executable(visensor_node src/visensor_node.cpp src/visensor.cpp )
 
 add_dependencies(visensor_node ${${PROJECT_NAME}_EXPORTED_TARGETS}})
 target_link_libraries(visensor_node ${libvisensor_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
+#build the nodelet
+add_library(visensor_nodelet src/visensor.cpp src/visensor_nodelet.cpp)
+add_dependencies(visensor_nodelet ${${PROJECT_NAME}_EXPORTED_TARGETS}})
+target_link_libraries(visensor_nodelet ${libvisensor_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
+# Install the nodelet library
+install(TARGETS visensor_nodelet
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+# Install other support files for installation
+install(FILES visensor_nodelet.xml 
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
