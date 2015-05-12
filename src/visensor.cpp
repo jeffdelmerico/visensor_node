@@ -152,7 +152,7 @@ void ViSensor::imuCallback(boost::shared_ptr<ViImuMsg> imu_ptr, ViErrorCode erro
   ros::Time msg_time;
   msg_time.fromNSec(imu_ptr->timestamp);
 
-  sensor_msgs::ImuPtr imu_msg;
+  sensor_msgs::ImuPtr imu_msg( new sensor_msgs::Imu);
 
   imu_msg->header.stamp = msg_time;
   imu_msg->header.frame_id = ROS_IMU_FRAME_NAMES.at(static_cast<SensorId::SensorId>(imu_ptr->imu_id));
@@ -196,7 +196,7 @@ void ViSensor::imuCallback(boost::shared_ptr<ViImuMsg> imu_ptr, ViErrorCode erro
   imu_msg->linear_acceleration_covariance[7] = 0.0;
   imu_msg->linear_acceleration_covariance[8] = sigma2_acc_adis16375_d;
 
-  visensor_node::visensor_imuPtr imu2;
+  visensor_node::visensor_imuPtr imu2( new visensor_node::visensor_imu);
   imu2->header.stamp = msg_time;
   imu2->header.frame_id = ROS_IMU_FRAME_NAMES.at(static_cast<SensorId::SensorId>(imu_ptr->imu_id));
   imu2->header.seq = 5;
@@ -246,18 +246,19 @@ void ViSensor::frameCallback(ViFrame::Ptr frame_ptr, ViErrorCode error) {
   msg_time_host.fromNSec(frame_ptr->timestamp_host);
 
   // create new time message
-  visensor_node::visensor_time_hostPtr time_msg;
+  visensor_node::visensor_time_hostPtr time_msg( new visensor_node::visensor_time_host);
   time_msg->header.stamp = msg_time;
   time_msg->timestamp_host = msg_time_host;
   pub_time_host_.publish(time_msg);
 
   // create new image message
-  sensor_msgs::ImagePtr msg;
+  sensor_msgs::ImagePtr msg( new sensor_msgs::Image);
   msg->header.stamp = msg_time;
   msg->header.frame_id = ROS_CAMERA_FRAME_NAMES.at(static_cast<SensorId::SensorId>(frame_ptr->camera_id));
 
   if (frame_ptr->image_type == MONO8)
-    sensor_msgs::fillImage(*msg, sensor_msgs::image_encodings::MONO8, image_height, image_width, image_width,
+    sensor_msgs::fillImage(*msg, sensor_msgs::image_encodings::MONO8, 
+                           image_height, image_width, image_width,
                            frame_ptr->getImageRawPtr());
   else if (frame_ptr->image_type == MONO16) {
     cv::Mat image;
@@ -274,8 +275,9 @@ void ViSensor::frameCallback(ViFrame::Ptr frame_ptr, ViErrorCode error) {
     ROS_WARN("[VI_SENSOR] - unknown image type!");
 
   // get current CameraInfo data
-  sensor_msgs::CameraInfoPtr ci = boost::make_shared<sensor_msgs::CameraInfo>
-                                  (cinfo_[static_cast<SensorId::SensorId>(frame_ptr->camera_id)]);
+  //sensor_msgs::CameraInfoPtr ci = boost::make_shared<sensor_msgs::CameraInfo>
+  //                                (cinfo_[static_cast<SensorId::SensorId>(frame_ptr->camera_id)]);
+  sensor_msgs::CameraInfoPtr ci(new sensor_msgs::CameraInfo(cinfo_[static_cast<SensorId::SensorId>(frame_ptr->camera_id)]));
 
   // fill header
   ci->header.frame_id = ROS_CAMERA_FRAME_NAMES.at(static_cast<SensorId::SensorId>(frame_ptr->camera_id));

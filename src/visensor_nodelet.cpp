@@ -43,6 +43,7 @@ class ViSensorNodelet : public nodelet::Nodelet {
 
 void ViSensorNodelet::onInit()
 {
+
   vi_sensor = boost::make_shared<ViSensor>(getName(), getNodeHandle(), getPrivateNodeHandle());
 
   //Initalize params from ROS or set to default value
